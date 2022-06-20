@@ -10,8 +10,25 @@ httpServer.listen(HTTP_PORT)
 
 const wss = new WebSocketServer({ port: 8080 })
 
-wss.on('connection', (ws) => {
-  ws.on('message', (data) => {
+wss.on('connection', async (ws) => {
+  const duplex = createWebSocketStream(ws, {
+    allowHalfOpen: false,
+    encoding: 'utf8',
+  })
+
+  let data = ''
+
+  duplex.on('readable', () => {
+    let chunk
+
+    while (null !== (chunk = duplex.read())) {
+      data += chunk
+    }
+
+    duplex.emit('end')
+  })
+
+  duplex.on('end', async () => {
     console.log(data)
   })
 })
