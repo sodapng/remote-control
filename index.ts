@@ -10,6 +10,15 @@ httpServer.listen(HTTP_PORT)
 
 const wss = new WebSocketServer({ port: 8080 })
 
+const draw = (x: number, y: number, width: number, height?: number) => {
+  robot.mouseToggle('down')
+  robot.dragMouse(x + width, y)
+  robot.dragMouse(x + width, y + (height || width))
+  robot.dragMouse(x, y + (height || width))
+  robot.dragMouse(x, y)
+  robot.mouseToggle('up')
+}
+
 wss.on('connection', async (ws) => {
   const duplex = createWebSocketStream(ws, {
     allowHalfOpen: false,
@@ -52,12 +61,9 @@ wss.on('connection', async (ws) => {
       const buffer = await jimp.getBase64Async(Jimp.MIME_PNG)
       ws.send(`prnt_scrn ${buffer.replace('data:image/png;base64,', '')}`)
     } else if (command === 'draw_square') {
-      robot.mouseToggle('down')
-      robot.dragMouse(x + a, y)
-      robot.dragMouse(x + a, y + a)
-      robot.dragMouse(x, y + a)
-      robot.dragMouse(x, y)
-      robot.mouseToggle('up')
+      draw(x, y, a)
+    } else if (command === 'draw_rectangle') {
+      draw(x, y, a, b)
     }
 
     data = ''
