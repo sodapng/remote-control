@@ -10,12 +10,26 @@ httpServer.listen(HTTP_PORT)
 
 const wss = new WebSocketServer({ port: 8080 })
 
-const draw = (x: number, y: number, width: number, height?: number) => {
+const drawLine = (x: number, y: number, width: number, height?: number) => {
   robot.mouseToggle('down')
   robot.dragMouse(x + width, y)
   robot.dragMouse(x + width, y + (height || width))
   robot.dragMouse(x, y + (height || width))
   robot.dragMouse(x, y)
+  robot.mouseToggle('up')
+}
+
+const drawCircle = (x: number, y: number, radius: number) => {
+  robot.moveMouse(x + radius, y)
+  robot.mouseToggle('down')
+
+  for (let i = 0; i <= Math.PI * 2; i += 0.01) {
+    const dx = x + radius * Math.cos(i)
+    const dy = y + radius * Math.sin(i)
+
+    robot.dragMouse(dx, dy)
+  }
+
   robot.mouseToggle('up')
 }
 
@@ -61,9 +75,11 @@ wss.on('connection', async (ws) => {
       const buffer = await jimp.getBase64Async(Jimp.MIME_PNG)
       ws.send(`prnt_scrn ${buffer.replace('data:image/png;base64,', '')}`)
     } else if (command === 'draw_square') {
-      draw(x, y, a)
+      drawLine(x, y, a)
     } else if (command === 'draw_rectangle') {
-      draw(x, y, a, b)
+      drawLine(x, y, a, b)
+    } else if (command === 'draw_circle') {
+      drawCircle(x, y, a)
     }
 
     data = ''
