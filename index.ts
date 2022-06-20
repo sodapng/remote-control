@@ -51,6 +51,13 @@ wss.on('connection', async (ws) => {
       jimp.bitmap.data = image
       const buffer = await jimp.getBase64Async(Jimp.MIME_PNG)
       ws.send(`prnt_scrn ${buffer.replace('data:image/png;base64,', '')}`)
+    } else if (command === 'draw_square') {
+      robot.mouseToggle('down')
+      robot.dragMouse(x + a, y)
+      robot.dragMouse(x + a, y + a)
+      robot.dragMouse(x, y + a)
+      robot.dragMouse(x, y)
+      robot.mouseToggle('up')
     }
 
     data = ''
