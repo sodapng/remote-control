@@ -30,5 +30,29 @@ wss.on('connection', async (ws) => {
 
   duplex.on('end', async () => {
     console.log(data)
+
+    const [command, ...params] = data.split(' ')
+    const [a, b] = params.map(Number)
+    const { x, y } = robot.getMousePos()
+
+    if (command === 'mouse_up') {
+      robot.moveMouse(x, y - a)
+    } else if (command === 'mouse_down') {
+      robot.moveMouse(x, y + a)
+    } else if (command === 'mouse_left') {
+      robot.moveMouse(x - a, y)
+    } else if (command === 'mouse_right') {
+      robot.moveMouse(x + a, y)
+    } else if (command === 'mouse_position') {
+      ws.send(`mouse_position ${x},${y}`)
+    } else if (command === 'prnt_scrn') {
+      const { image, width, height } = robot.screen.capture(x, y, 200, 200)
+      const jimp = await Jimp.create(width, height)
+      jimp.bitmap.data = image
+      const buffer = await jimp.getBase64Async(Jimp.MIME_PNG)
+      ws.send(`prnt_scrn ${buffer.replace('data:image/png;base64,', '')}`)
+    }
+
+    data = ''
   })
 })
