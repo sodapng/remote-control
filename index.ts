@@ -59,6 +59,7 @@ wss.on('connection', async (ws) => {
   const duplex = createWebSocketStream(ws, {
     allowHalfOpen: false,
     encoding: 'utf8',
+    decodeStrings: false,
   })
 
   let data = ''
@@ -89,12 +90,12 @@ wss.on('connection', async (ws) => {
     } else if (command === 'mouse_right') {
       robot.moveMouse(x + a, y)
     } else if (command === 'mouse_position') {
-      ws.send(`mouse_position ${x},${y}`)
+      duplex.write(`mouse_position ${x},${y}`)
     } else if (command === 'prnt_scrn') {
       const capture = robot.screen.capture(x, y, 200, 200)
       let base64 = await screenCaptureToBase64(capture)
       base64 = base64.replace('data:image/png;base64,', '')
-      ws.send(`prnt_scrn ${base64}`)
+      duplex.write(`prnt_scrn ${base64}`)
     } else if (command === 'draw_square') {
       drawLine(x, y, a)
     } else if (command === 'draw_rectangle') {
