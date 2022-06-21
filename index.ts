@@ -3,6 +3,7 @@ import robot from 'robotjs'
 import { createWebSocketStream, WebSocketServer } from 'ws'
 import printScreen from './src/helpers/printScreen'
 import drawLine from './src/helpers/drawLine'
+import drawCircle from './src/helpers/drawCircle'
 
 const HTTP_PORT = 3000
 
@@ -10,20 +11,6 @@ console.log(`Start static http server on the ${HTTP_PORT} port!`)
 httpServer.listen(HTTP_PORT)
 
 const wss = new WebSocketServer({ port: 8080 })
-
-const drawCircle = (x: number, y: number, radius: number) => {
-  robot.moveMouse(x + radius, y)
-  robot.mouseToggle('down')
-
-  for (let i = 0; i <= Math.PI * 2; i += 0.01) {
-    const dx = x + radius * Math.cos(i)
-    const dy = y + radius * Math.sin(i)
-
-    robot.dragMouse(dx, dy)
-  }
-
-  robot.mouseToggle('up')
-}
 
 wss.on('connection', async (ws) => {
   const duplex = createWebSocketStream(ws, {
