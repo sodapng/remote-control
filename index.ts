@@ -1,7 +1,7 @@
-import Jimp from 'jimp'
 import { httpServer } from './src/http_server/index'
-import robot, { Bitmap } from 'robotjs'
+import robot from 'robotjs'
 import { createWebSocketStream, WebSocketServer } from 'ws'
+import printScreen from './src/helpers/printScreen'
 
 const HTTP_PORT = 3000
 
@@ -9,28 +9,6 @@ console.log(`Start static http server on the ${HTTP_PORT} port!`)
 httpServer.listen(HTTP_PORT)
 
 const wss = new WebSocketServer({ port: 8080 })
-
-const screenCaptureToBase64 = (capture: Bitmap): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    try {
-      let pos = 0
-      const { width, height, image } = capture
-      const jimp = new Jimp(width, height)
-
-      jimp.scan(0, 0, jimp.bitmap.width, jimp.bitmap.height, (x, y, idx) => {
-        jimp.bitmap.data[idx + 2] = image.readUInt8(pos++)
-        jimp.bitmap.data[idx + 1] = image.readUInt8(pos++)
-        jimp.bitmap.data[idx + 0] = image.readUInt8(pos++)
-        jimp.bitmap.data[idx + 3] = image.readUInt8(pos++)
-      })
-
-      const mime = jimp.getMIME()
-      resolve(jimp.getBase64Async(mime))
-    } catch (error) {
-      reject(error)
-    }
-  })
-}
 
 const drawLine = (x: number, y: number, width: number, height?: number) => {
   robot.mouseToggle('down')
@@ -92,10 +70,9 @@ wss.on('connection', async (ws) => {
     } else if (command === 'mouse_position') {
       duplex.write(`mouse_position ${x},${y}`)
     } else if (command === 'prnt_scrn') {
-      const capture = robot.screen.capture(x, y, 200, 200)
-      let base64 = await screenCaptureToBase64(capture)
-      base64 = base64.replace('data:image/png;base64,', '')
-      duplex.write(`prnt_scrn ${base64}`)
+      const image = await printScreen(x, y, 200, 200)
+      const base64 = await image.getBase64Async(image.getMIME())
+      duplex.write(`prnt_scrn ${base64.substring(22)}`)
     } else if (command === 'draw_square') {
       drawLine(x, y, a)
     } else if (command === 'draw_rectangle') {
