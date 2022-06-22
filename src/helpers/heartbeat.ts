@@ -1,3 +1,5 @@
-export default function heartbeat(this: any) {
+import { IWebSocket } from '../types'
+
+export default function heartbeat(this: IWebSocket) {
   this.isAlive = true
 }

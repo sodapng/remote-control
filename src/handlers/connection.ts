@@ -1,10 +1,10 @@
 import { createWebSocketStream } from 'ws'
 import heartbeat from '../helpers/heartbeat'
-import { TWebSocket } from '../types'
+import { IWebSocket } from '../types'
 import readable from './readable'
 
 export function connection() {
-  return async (ws: TWebSocket) => {
+  return async (ws: IWebSocket) => {
     ws.isAlive = true
 
     ws.on('pong', heartbeat)
