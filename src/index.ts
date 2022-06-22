@@ -1,16 +1,22 @@
+import * as dotenv from 'dotenv'
 import { httpServer } from './http_server/index'
 import { createWebSocketStream, WebSocketServer } from 'ws'
 import app from './app'
 import heartbeat from './helpers/heartbeat'
 import { TCommand, TWebSocket } from './types'
 import { interval } from './helpers/interval'
+import { resolve } from 'path'
+import { cwd } from 'process'
 
-const HTTP_PORT = 3000
+dotenv.config({ path: resolve(cwd(), '.env') })
+
+const HTTP_PORT = process.env.HTTP_PORT || 3000
+const WSS_PORT = Number(process.env.WSS_PORT) || 8080
 
 console.log(`Start static http server on the ${HTTP_PORT} port!`)
 httpServer.listen(HTTP_PORT)
 
-export const wss = new WebSocketServer({ port: 8080 })
+export const wss = new WebSocketServer({ port: WSS_PORT })
 
 wss.on('connection', async (ws: TWebSocket) => {
   ws.isAlive = true
