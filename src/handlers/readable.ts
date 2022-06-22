@@ -29,7 +29,7 @@ export default function readable(duplex: Duplex) {
 
       console.log(command, ...params)
       const result = await runCommand[command](x, y)
-      duplex.write(`${command} ${result}`)
+      duplex.write(`${command} ${result}\0`)
     } catch (error) {
       if (error instanceof Error) {
         console.error(error.message)
