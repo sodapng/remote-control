@@ -1,16 +1,26 @@
 import { httpServer } from './http_server/index'
 import { createWebSocketStream, WebSocketServer } from 'ws'
 import app from './app'
-import { TCommand } from './types/command'
+import heartbeat from './helpers/heartbeat'
+import { TCommand, TWebSocket } from './types'
+import { interval } from './helpers/interval'
 
 const HTTP_PORT = 3000
 
 console.log(`Start static http server on the ${HTTP_PORT} port!`)
 httpServer.listen(HTTP_PORT)
 
-const wss = new WebSocketServer({ port: 8080 })
+export const wss = new WebSocketServer({ port: 8080 })
 
-wss.on('connection', async (ws) => {
+wss.on('connection', async (ws: TWebSocket) => {
+  ws.isAlive = true
+
+  ws.on('pong', heartbeat)
+
+  ws.on('close', () => {
+    duplex.destroy()
+  })
+
   const duplex = createWebSocketStream(ws, {
     encoding: 'utf8',
     decodeStrings: false,
@@ -46,10 +56,13 @@ wss.on('connection', async (ws) => {
     } catch (error) {
       if (error instanceof Error) {
         console.error(error.message)
-        duplex.write(error.message)
       }
     } finally {
       data = ''
     }
   })
+})
+
+wss.on('close', () => {
+  clearInterval(interval)
 })
