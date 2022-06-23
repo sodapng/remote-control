@@ -1,20 +1,18 @@
 import { WebSocket } from 'ws'
 
-export type TWebSocket = WebSocket & {
+export interface IWebSocket extends WebSocket {
   isAlive: boolean
 }
 
-export interface IWebSocket extends WebSocket {
-  [key: string]: any
+export interface IApp {
+  [key: string]
+  mouse_up: (_y: number) => void
+  mouse_down: (_y: number) => void
+  mouse_left: (_x: number) => void
+  mouse_right: (_x: number) => void
+  mouse_position: () => string
+  prnt_scrn: () => Promise<string>
+  draw_square: (length: number) => void
+  draw_rectangle: (width: number, height: number) => void
+  draw_circle: (radius: number) => void
 }
-
-export type TCommand =
-  | 'mouse_up'
-  | 'mouse_down'
-  | 'mouse_left'
-  | 'mouse_right'
-  | 'mouse_position'
-  | 'prnt_scrn'
-  | 'draw_square'
-  | 'draw_rectangle'
-  | 'draw_circle'

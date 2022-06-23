@@ -1,6 +1,5 @@
 import { Duplex } from 'stream'
 import app from '../app'
-import { TCommand } from '../types'
 
 export default function readable(duplex: Duplex) {
   let data = ''
@@ -13,7 +12,7 @@ export default function readable(duplex: Duplex) {
         data += chunk
       }
 
-      const [command, ...params] = data.split(' ') as [TCommand]
+      const [command, ...params] = data.split(' ')
       const [x, y] = params.map(Number)
 
       const runCommand = app()

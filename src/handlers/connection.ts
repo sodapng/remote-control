@@ -1,5 +1,4 @@
 import { createWebSocketStream } from 'ws'
-import heartbeat from '../helpers/heartbeat'
 import { IWebSocket } from '../types'
 import readable from './readable'
 
@@ -7,10 +6,8 @@ export function connection() {
   return async (ws: IWebSocket) => {
     ws.isAlive = true
 
-    ws.on('pong', heartbeat)
-
-    ws.on('close', () => {
-      duplex.destroy()
+    ws.on('pong', () => {
+      ws.isAlive = true
     })
 
     const duplex = createWebSocketStream(ws, {

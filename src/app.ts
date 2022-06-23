@@ -2,8 +2,9 @@ import robot from 'robotjs'
 import drawCircle from './helpers/drawCircle'
 import drawLine from './helpers/drawLine'
 import printScreen from './helpers/printScreen'
+import { IApp } from './types'
 
-export default function app() {
+export default function app(): IApp {
   const { x, y } = robot.getMousePos()
 
   return {
