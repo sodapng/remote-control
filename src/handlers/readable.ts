@@ -26,9 +26,10 @@ export default function readable(duplex: Duplex) {
         throw new Error(`${command} command not found`)
       }
 
-      console.log(command, ...params)
+      console.log(`got a message: ${data}`)
       const result = await runCommand[command](x, y)
       duplex.write(`${command} ${result}\0`)
+      console.log(`sent a message: ${command} ${result ? result : ''}\0`)
     } catch (error) {
       if (error instanceof Error) {
         console.error(error.message)
